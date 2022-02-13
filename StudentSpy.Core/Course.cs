@@ -1,7 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace StudentSpy.Models
+namespace StudentSpy.Core
 {
     public class Course
     {
@@ -11,6 +12,10 @@ namespace StudentSpy.Models
 
         [Required(ErrorMessage = "Name should be provided")]
         public string Name { get; set; }
+        [Required(ErrorMessage = "Description should be provided")]
+        public string Description { get; set; }
+        [Required]
+        public int Duration { get; set; }
         public string PhotoPath { get; set; }
     }
 }

@@ -3,7 +3,9 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using StudentSpy.Core;
 using StudentSpy.WebAPI.Data;
 
 #nullable disable
@@ -11,9 +13,10 @@ using StudentSpy.WebAPI.Data;
 namespace StudentSpy.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220120120246_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -226,7 +229,7 @@ namespace StudentSpy.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("StudentSpy.Core.Course", b =>
+            modelBuilder.Entity("StudentSpy.Models.Course", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -247,12 +250,9 @@ namespace StudentSpy.Migrations
                     b.ToTable("Courses");
                 });
 
-            modelBuilder.Entity("StudentSpy.Core.User", b =>
+            modelBuilder.Entity("StudentSpy.Models.User", b =>
                 {
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
-
-                    b.Property<int>("Age")
-                        .HasColumnType("int");
 
                     b.Property<string>("LastName")
                         .IsRequired()

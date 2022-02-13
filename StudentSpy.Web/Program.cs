@@ -1,12 +1,16 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using NLog;
-using NLog.Web;
 using StudentSpy.Core;
-using StudentSpy.WebAPI.Data;
+using StudentSpy.Web.Data;
+using NLog.Web;
+using NLog;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using StudentSpy.Repositories;
+using StudentSpy.Web.Repositories;
+using FluentValidation.AspNetCore;
+using StudentSpy.Core.Validators;
 
 var logger = NLog.LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
 logger.Debug("init main");
@@ -15,32 +19,18 @@ try
 {
     var builder = WebApplication.CreateBuilder(args);
     ConfigurationManager configuration = builder.Configuration;
+    builder.Services.AddCors();
 
     // Add services to the container.
-    builder.Services.AddControllers();
-    //builder.Services.AddCors();
-    builder.Services.AddCors(options =>
-    {
-        options.AddPolicy("AllowAllHeaders",
-        corsbuilder =>
-        {
-            corsbuilder.AllowAnyOrigin()
-    .AllowAnyHeader()
-    .AllowAnyMethod()
-    .WithOrigins("http://localhost:44348");
-        });
-    });
 
     //Db
     builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(
     builder.Configuration.GetConnectionString("DefaultConnection")
     ));
     //For Identity
-    builder.Services.AddIdentity<User, IdentityRole>()
+    builder.Services.AddIdentity<User, Microsoft.AspNetCore.Identity.IdentityRole>()
         .AddEntityFrameworkStores<AppDbContext>()
         .AddDefaultTokenProviders();
-
-
 
     // Adding Authentication
     builder.Services.AddAuthentication(options =>
@@ -64,13 +54,16 @@ try
         };
     });
 
+    builder.Services.AddControllers()
+        .AddFluentValidation(
+        fv => fv.RegisterValidatorsFromAssemblyContaining<SubRequestValidation>());
+
+    // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
 
-
-    //// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-    builder.Services.AddEndpointsApiExplorer();
-    builder.Services.AddSwaggerGen();
+    builder.Services.AddTransient<IEmailService, EmailService>();
+    builder.Services.AddTransient<ICourseRepository, CourseRepository>();
 
     // NLog: Setup NLog for Dependency injection
     builder.Logging.ClearProviders();
@@ -80,35 +73,26 @@ try
     var app = builder.Build();
 
     // Configure the HTTP request pipeline.
-    if (!app.Environment.IsDevelopment())
+    if (app.Environment.IsDevelopment())
     {
-        app.UseExceptionHandler("/Home/Error");
-        // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-        app.UseHsts();
-
         app.UseSwagger();
         app.UseSwaggerUI();
     }
 
     app.UseHttpsRedirection();
-    app.UseDefaultFiles();
-    app.UseStaticFiles();
 
-    app.UseRouting();
-
-    app.UseAuthorization();
+    // Authentication & Authorization
     app.UseAuthentication();
+    app.UseAuthorization();
 
     // global cors policy
-    //app.UseCors(x => x
-    //    .SetIsOriginAllowed(origin => true)
-    //    .AllowAnyMethod()
-    //    .AllowAnyHeader()
-    //    .AllowCredentials());
+    app.UseCors(x => x
+        .SetIsOriginAllowed(origin => true)
+        .AllowAnyMethod()
+        .AllowAnyHeader()
+        .AllowCredentials());
 
     app.MapControllers();
-        //name: "default",
-        //pattern: "{controller=Home}/{action=Index}/{id?}");
 
     app.Run();
 }

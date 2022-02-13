@@ -1,10 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
+using Microsoft.AspNetCore.Identity;
 
-namespace StudentSpy.Models
+namespace StudentSpy.Core
 {
-    public class User
+    public class User: IdentityUser
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -17,15 +18,16 @@ namespace StudentSpy.Models
         [Required(ErrorMessage = "Last Name should be provided")]
         public string LastName { get; set; }
 
+        [DisplayName("Age")]
+        [Required(ErrorMessage = "Age should be provided")]
+        public int Age { get; set; }
+
         [EmailAddress(ErrorMessage = "Email is not valid")]
         [Required]
         public string Email { get; set; }
 
-        [Required(ErrorMessage = "Password should be provided")]
-        public string Password { get; set; }
-
         [DisplayName("Register Date")]
-        public DateTime RegisterDate { get; set; } = DateTime.Now;
+        public DateTime RegisterDate { get; set; }
 
         [DisplayName("Study Date")]
         public DateTime StudyDate { get; set; }

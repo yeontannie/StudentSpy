@@ -2,9 +2,9 @@
 using Microsoft.EntityFrameworkCore;
 using StudentSpy.Core;
 
-namespace StudentSpy.WebAPI.Data
+namespace StudentSpy.Web.Data
 {
-    public class AppDbContext : IdentityDbContext
+    public class AppDbContext: IdentityDbContext<User>
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
@@ -13,9 +13,9 @@ namespace StudentSpy.WebAPI.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-        }
-
-        public DbSet<User> Users { get; set; }
+        }     
+        
         public DbSet<Course> Courses { get; set; }
-    }    
+        public DbSet<Subscription> Subscriptions { get; set; }
+    }
 }

@@ -1,0 +1,70 @@
+<BrowserRouter>
+    <div className="App container">
+        <Layout>
+        <Header style={{ position: 'fixed', zIndex: 1, width: '100%' }}>
+            <div className="logo" />
+            <Menu theme="dark" mode="horizontal" defaultSelectedKeys={['1']}>
+              <Menu.Item key="1"><NavLink className="btn" to="/login" type="submit">Login</NavLink></Menu.Item>
+              <Menu.Item key="2"><NavLink className="btn" to="/register" type="submit">Register</NavLink></Menu.Item>
+            </Menu>
+          </Header>
+          <Content className="site-layout d-flex justify-content-center" style={{ padding: '0 50px', marginTop: 64 }}>
+          <div className="site-layout-background" style={{ padding: 24, minHeight: 500 }}>
+          <Form
+            name="basic"
+            labelCol={{
+                span: 8,
+            }}
+            wrapperCol={{
+                span: 16,
+            }}            
+            autoComplete="off"
+            >
+            <Form.Item
+                label="Username"
+                name="username"
+                rules={[
+                {
+                    required: true,
+                    message: 'Please input your username!',
+                },
+                ]}
+            >
+                <Input />
+            </Form.Item>
+
+            <Form.Item
+                label="Password"
+                name="password"
+                rules={[
+                {
+                    required: true,
+                    message: 'Please input your password!',
+                },
+                ]}
+            >
+                <Input.Password />
+            </Form.Item>
+            
+            <Form.Item
+                wrapperCol={{
+                offset: 8,
+                span: 16,
+                }}
+            >
+                <Button type="primary" htmlType="submit">
+                Submit
+                </Button>
+            </Form.Item>
+            </Form>
+            </div>
+          </Content>
+          
+          <Footer style={{ textAlign: 'center' }}>Student Spy ©2022 Created by CyberOstroh</Footer>
+        </Layout>
+        <Routes>
+          <Route path="/login" component={Login} />
+          <Route path="/register" component={Register} />
+        </Routes> 
+    </div>
+    </BrowserRouter>
