@@ -8,9 +8,11 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using StudentSpy.Repositories;
-using StudentSpy.Web.Repositories;
 using FluentValidation.AspNetCore;
 using StudentSpy.Core.Validators;
+using StudentSpy.Web.Queries;
+using StudentSpy.Web.Commands;
+using System.Security.Claims;
 
 var logger = NLog.LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
 logger.Debug("init main");
@@ -63,7 +65,13 @@ try
     builder.Services.AddSwaggerGen();
 
     builder.Services.AddTransient<IEmailService, EmailService>();
-    builder.Services.AddTransient<ICourseRepository, CourseRepository>();
+    builder.Services.AddTransient<CourseQuery>();
+    builder.Services.AddTransient<CourseCommand>();
+    builder.Services.AddTransient<UserCommand>();
+
+    /////////////////////////////////////////////////////////
+    builder.Services.AddHttpContextAccessor();
+    ////////////////////////////////////////////////////////
 
     // NLog: Setup NLog for Dependency injection
     builder.Logging.ClearProviders();

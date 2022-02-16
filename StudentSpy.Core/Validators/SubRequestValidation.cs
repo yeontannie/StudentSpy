@@ -7,9 +7,8 @@ namespace StudentSpy.Core.Validators
     {
         public SubRequestValidation()
         {
-            RuleFor(subscription => subscription.Token).NotNull();
-            RuleFor(subscription => subscription.CourseId).NotNull();
-            RuleFor(subscription => subscription.StartDate).NotNull();
+            RuleFor(subscription => subscription.CourseId).NotNull().NotEmpty();
+            RuleFor(subscription => subscription.StartDate).NotNull().NotEmpty();
         }
     }
 }

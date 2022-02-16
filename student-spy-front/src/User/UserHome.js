@@ -1,45 +1,83 @@
-import React from 'react';
-import { DatePicker, Image, Divider, Button, Card } from 'antd';
-import userService from '../Services/userService';
+import React, { useEffect } from 'react';
+import { DatePicker, Button, Image, Card, Col, Row } from 'antd';
+import courseService from '../Services/courseService';
 import Moment from 'moment';
 
-function UserHome() {
-  const [dateStarted, setDate] = React.useState(new Date());
-  const takeDateValue = (e) => {setDate(e.target.value)}
+const { Meta } = Card;
 
-  const isoDate = Moment(dateStarted).format("YYYY-MM-DDTHH:mm:ss.ss");
+function UserHome() {
+  const [coursesData, setCourses] = React.useState();
+  const [dateStarted, setDate] = React.useState(new Date());
+  const [isLoading, setLoading] = React.useState(true);
+
+  const isoDate = Moment.utc(dateStarted).toISOString();
   const accessT = JSON.parse(localStorage.getItem('accessToken'));
 
-  var subData = {
-    token: accessT,
-    courseId: 1,
-    date: isoDate + 'Z'
-  }
+  function startCourse(courseId) {
+    var subData = {
+      courseId: courseId,
+      startDate: isoDate
+    };
 
-  function startCourse() {
-    userService.subscribeCourse(subData)
+    courseService.subscribeCourse(subData, config)
     .then(function (response) {
       console.log(response)
     })
     .catch(function (error) {
       console.log(error)
-    })
+    });
   }
 
+  const config = {
+    headers: { Authorization: accessT }
+  };
+
+  useEffect(() => {
+    courseService.getUnSubCourses(config)
+    .then(function (response) {
+      setCourses(response.data)
+      setLoading(false);
+    })
+    .catch(function (error) {
+        console.log(error)});
+  }, []);
+
+  if (isLoading) {
+    return <div className="homeContainer">Loading...</div>;
+  }
+  else{
   return (
     <div className="homeContainer">
-      <Card title="CS50" style={{ width: 450, height: 400 }}>
-        <Image width={200}
-          src="" />
-        <p>Some description</p>
-        <Divider />
-        <DatePicker name="dateStarted" id="dateStarted" onChange={dt => setDate(dt)} />
-        <Button type="primary" size={"medium"} onClick={startCourse}>
-          Start
-        </Button>
+      <Row gutter={16}>
+      {coursesData.map((course) => (       
+        <Col span={8}>
+        <Card
+        key={course.id + ''}
+        style={{ width: 300 }}
+        cover={
+          <Image
+            alt="no photo"
+            src={course.photoPath}
+            fallback=""
+          />
+        }
+        actions={[
+          <DatePicker key="dateStarted" onChange={dt => setDate(dt)}/>,
+          <Button type="primary" size={"medium"} onClick={() => startCourse(course.id)}>
+            Subscribe
+          </Button>,
+        ]}
+      >
+        <Meta
+          title={course.name}
+          description={course.description + '. Duration: ' + course.duration + ' weeks.'}
+        />
       </Card>
+      </Col>     
+      ))}
+      </Row>
     </div>       
   );    
-}
+}}
 
 export default UserHome;
