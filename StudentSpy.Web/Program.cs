@@ -1,18 +1,18 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using StudentSpy.Core;
-using StudentSpy.Web.Data;
-using NLog.Web;
-using NLog;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using NLog.Web;
+using NLog;
 using System.Text;
-using StudentSpy.Repositories;
 using FluentValidation.AspNetCore;
+using StudentSpy.Core;
 using StudentSpy.Core.Validators;
-using StudentSpy.Web.Queries;
-using StudentSpy.Web.Commands;
-using System.Security.Claims;
+using StudentSpy.DataManager.Data;
+using StudentSpy.DataManager.Queries;
+using StudentSpy.DataManager.Commands;
+using StudentSpy.DataManager.Services;
+using StudentSpy.Web.Middlewares;
 
 var logger = NLog.LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
 logger.Debug("init main");
@@ -100,6 +100,7 @@ try
         .AllowAnyHeader()
         .AllowCredentials());
 
+    app.UseMiddleware<ErrorHandlerMiddleware>();
     app.MapControllers();
 
     app.Run();

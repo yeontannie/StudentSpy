@@ -22,6 +22,7 @@ function UserHome() {
     courseService.subscribeCourse(subData, config)
     .then(function (response) {
       console.log(response)
+      window.location.reload(false);
     })
     .catch(function (error) {
       console.log(error)
@@ -52,7 +53,7 @@ function UserHome() {
       {coursesData.map((course) => (       
         <Col span={8}>
         <Card
-        key={course.id + ''}
+        key={course.id}
         style={{ width: 300 }}
         cover={
           <Image
@@ -60,7 +61,7 @@ function UserHome() {
             src={course.photoPath}
             fallback=""
           />
-        }
+        }        
         actions={[
           <DatePicker key="dateStarted" onChange={dt => setDate(dt)}/>,
           <Button type="primary" size={"medium"} onClick={() => startCourse(course.id)}>

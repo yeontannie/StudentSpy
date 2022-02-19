@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using StudentSpy.Core;
 using StudentSpy.Core.Requests;
 using StudentSpy.Core.Validators;
-using StudentSpy.Repositories;
+using StudentSpy.DataManager.Helpers;
+using StudentSpy.DataManager.Services;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -43,6 +43,7 @@ namespace StudentSpy.Web.Controllers
                 var username = model.Email.Split('@');
                 var user = await userManager.FindByNameAsync(username.First());
                 if (user != null && await userManager.CheckPasswordAsync(user, model.Password))
+                //&& user.EmailConfirmed == true
                 {
                     var userRoles = await userManager.GetRolesAsync(user);
                     var userId = userManager.GetUserIdAsync(user);
@@ -71,6 +72,7 @@ namespace StudentSpy.Web.Controllers
             return Unauthorized();
         }
 
+        [AllowAnonymous]
         [HttpPost]
         [Route("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest model)
@@ -110,30 +112,35 @@ namespace StudentSpy.Web.Controllers
                 {
                     await userManager.AddToRoleAsync(user, UserRoles.User);
                 }
-
+                
                 var code = await userManager.GenerateEmailConfirmationTokenAsync(user);
+
                 var callbackUrl = Url.Action(
                     "ConfirmEmail",
                     "Auth",
                     new { userName = user.UserName, code = code },
                     HttpContext.Request.Scheme);
-                EmailService emailService = new EmailService();
-                emailService.SendEmailAsync(model.Email, "Confirm your account",
-                    $"Please, confirm your accout: <a href='{callbackUrl}'>Click me!</a>");
 
-                logger.LogWarning(callbackUrl);
-                return Content("To finish the registration, confirm your email.");
+                EmailService emailService = new EmailService();
+                emailService.SendEmail(model.Email, "Confirm your account",
+                    $"Your account has been created. To login you need to confirm " +
+                    $"your accout first. To do that: <a href='{callbackUrl}'>Click here!</a>");
+
+                
+
+                return Ok();
             }
             return BadRequest();
         }
 
-        [HttpGet]
+        [HttpPut]
+        [Route("confirmed")]
         [AllowAnonymous]
         public async Task<IActionResult> ConfirmEmail(string userName, string code)
         {
             if (userName == null || code == null)
             {
-                return NotFound();
+                throw new KeyNotFoundException("userName or code is not found");
             }
             var user = await userManager.FindByNameAsync(userName);
             if (user == null)
@@ -144,7 +151,7 @@ namespace StudentSpy.Web.Controllers
             if (result.Succeeded)
             {
                 logger.LogInformation("Email has been confirmed successfully!");
-                return Ok();
+                return Ok();                
             }
             else
             {
@@ -152,6 +159,7 @@ namespace StudentSpy.Web.Controllers
             }
         }
 
+        [AllowAnonymous]
         [HttpPost]
         [Route("register-admin")]
         public async Task<IActionResult> RegisterAdmin([FromBody] RegisterRequest model)

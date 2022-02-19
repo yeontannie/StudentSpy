@@ -1,7 +1,7 @@
 ﻿using StudentSpy.Core;
-using StudentSpy.Web.Data;
+using StudentSpy.DataManager.Data;
 
-namespace StudentSpy.Web.Queries
+namespace StudentSpy.DataManager.Queries
 {
     public class CourseQuery
     {

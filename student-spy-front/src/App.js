@@ -8,6 +8,7 @@ import Home from './Pages/Home';
 import Courses from './Pages/Courses';
 import LogOut from './Pages/LogOut';
 import ConfirmEmail from './Pages/ConfirmEmail';
+import Confirmed from './Pages/Confirmed';
 
 import './App.css';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -30,6 +31,7 @@ function App() {
               <Route path="/register" element={<Register />} />
               <Route path="/login" element={<Login />} />
               <Route path="/confirm-email" element={<ConfirmEmail />} />
+              <Route path="/confirmed" element={<Confirmed />} />
             </Routes>           
           </div>
          </Content> 

@@ -3,8 +3,7 @@ import React from "react";
 function ConfirmEmail() {
     return (
         <div className="confirmEmailContainer">
-            <h3>Email Confirmed Successfully!</h3>
-            <p>You can <a href="http://localhost:3000/login">login</a> now!</p>
+            <h3>Your account created successfully. Please, confirm it before logging in. Check you mail box.</h3>
         </div>       
     );    
 }

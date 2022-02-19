@@ -1,6 +1,6 @@
 import React from "react";
 import { Form, Input, Button } from "antd";
-import { Slider, InputNumber, Row, Col } from 'antd';
+import { InputNumber } from 'antd';
 import authService from "../Services/authService";
 
 function Register() {
@@ -33,12 +33,21 @@ function Register() {
             authService.registerUser(userData)
             .then(function (response) {
                 console.log(response)
+                handleSubmit()
             })
             .catch(function (error) {
                 console.log(error)
         })}
         else{
             alert("Passwords do not match")
+        }
+    }
+
+    async function handleSubmit() {     
+        try {
+            window.location.href = '/confirm-email';         
+        } catch (e) {
+          console.log(e.message);
         }
     }
 

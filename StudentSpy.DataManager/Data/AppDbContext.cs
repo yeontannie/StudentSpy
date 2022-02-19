@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using StudentSpy.Core;
 
-namespace StudentSpy.Web.Data
+namespace StudentSpy.DataManager.Data
 {
     public class AppDbContext: IdentityDbContext<User>
     {

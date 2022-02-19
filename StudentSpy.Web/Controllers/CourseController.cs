@@ -1,10 +1,9 @@
-﻿using Microsoft.AspNet.Identity;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using StudentSpy.Core;
 using StudentSpy.Core.Requests;
-using StudentSpy.Web.Commands;
-using StudentSpy.Web.Queries;
+using StudentSpy.DataManager.Commands;
+using StudentSpy.DataManager.Queries;
 
 namespace StudentSpy.Web.Controllers
 {
@@ -15,19 +14,32 @@ namespace StudentSpy.Web.Controllers
         private readonly CourseQuery courseQ;
         private readonly CourseCommand courseC;
         private readonly UserCommand userC;
-        //private readonly UserManager<User> userManager;
+        private readonly UserManager<User> userManager;
 
         public CourseController(CourseQuery csQ, CourseCommand csC,
-            UserCommand usC)// UserManager<User> userM
+            UserCommand usC, UserManager<User> userM)
         {
             courseQ = csQ;
             courseC = csC;
             userC = usC;
-            //userManager = userM;
+            userManager = userM;
         }
 
         [HttpGet]
-        //[Authorize]
+        [Route("get-by-id")]
+        public Course GetById(int courseId)
+        {
+            return courseQ.GetCourseById(courseId);
+        }
+
+        [HttpGet]
+        [Route("get-all-courses")]
+        public IList<Course> GetAllCourses()
+        {
+            return courseQ.GetAllCourses();
+        }
+
+        [HttpGet]
         [Route("get-sub-courses")]
         public IList<Course> GetSubscribedCourses()
         {
@@ -41,20 +53,28 @@ namespace StudentSpy.Web.Controllers
             return courseQ.GetUnSubscribed(userC.GetUserId());
         }
 
-        [HttpPut]
+        [HttpPost]
         [Route("edit-course")]
-        public async Task<IActionResult> EditCourse(Course course, int courseId)
+        public async Task<IActionResult> EditCourse([FromBody] EditCourseRequest model)
         {
-            courseC.Edit(course, courseId);
-            return Ok();
+            if (ModelState.IsValid)
+            {
+                courseC.Edit(model.CourseModel, model.CourseId);
+                return Ok();
+            }
+            return BadRequest();
         }
 
         [HttpPost]
         [Route("delete-course")]
-        public async Task<IActionResult> DeleteCourse(int courseId)
+        public async Task<IActionResult> DeleteCourse([FromBody] UnsubscribeRequest model)
         {
-            courseC.Delete(courseId);
-            return Ok();
+            if (ModelState.IsValid)
+            {
+                var response = courseC.Delete(model.CourseId);
+                return Ok(response);
+            }
+            return BadRequest();
         }
 
         [HttpPost]
@@ -87,7 +107,7 @@ namespace StudentSpy.Web.Controllers
                 }
                 else
                 {
-                    return NotFound();
+                    throw new KeyNotFoundException("Course do not exist");
                 }
             }            
             return BadRequest();

@@ -27,16 +27,17 @@ function Login() {
         })
         .catch(function (error) {
             console.log(error)
+            alert("Confirm your email first.")            
         })
     };
 
-    async function handleSubmit(event) {     
+    async function handleSubmit() {     
         try {
             window.location.href = '/';            
         } catch (e) {
           console.log(e.message);
         }
-      }
+    }
 
 
     return (

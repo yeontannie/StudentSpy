@@ -24,7 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\StudentSpy.Core\StudentSpy.Core.csproj" />
-    <ProjectReference Include="..\StudentSpy.Repositories\StudentSpy.Repositories.csproj" />
+    <ProjectReference Include="..\StudentSpy.DataManager\StudentSpy.DataManager.csproj" />
   </ItemGroup>
 
   <ItemGroup>

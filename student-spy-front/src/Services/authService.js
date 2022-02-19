@@ -15,7 +15,7 @@ export default class authService{
         return axios.post(URL + 'logout');
     }
 
-    static confirmEmail(){
-        return axios.get(URL + '');
+    static confirmed(model){
+        return axios.put(URL + 'confirmed', model);
     }
 }

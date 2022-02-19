@@ -1,8 +1,9 @@
 ﻿using StudentSpy.Core;
-using StudentSpy.Web.Data;
-using StudentSpy.Web.Queries;
+using StudentSpy.DataManager.Data;
+using StudentSpy.DataManager.Helpers;
+using StudentSpy.DataManager.Queries;
 
-namespace StudentSpy.Web.Commands
+namespace StudentSpy.DataManager.Commands
 {
     public class CourseCommand
     {
@@ -21,35 +22,44 @@ namespace StudentSpy.Web.Commands
             context.SaveChanges();
         }
 
-        public void Delete(int courseId)
+        public string Delete(int courseId)
         {
             var subs = context.Subscriptions.Where(i => i.CourseId == courseId).ToList();
             if(subs.Capacity == 0)
             {
                 context.Courses.Remove(courseQue.GetCourseById(courseId));
                 context.SaveChanges();
+                return "Deleted successfully";
             }
+            return "Can't delete course with subscriptions";
+
         }
 
-        public void Edit(Course courseEdit, int idToEdit)
+        public void Edit(Course model, int id)
         {
-            var course = context.Courses.Find(idToEdit);
-            if (course.Name != courseEdit.Name)
+            var course = context.Courses.Find(id);
+            if (course.Name != model.Name.Trim() && !context.Courses.Any(x => x.Name == model.Name.Trim()))
             {
-                course.Name = courseEdit.Name;
+                course.Name = model.Name.Trim();
             }
-            if (course.Description != courseEdit.Description)
+            else
             {
-                course.Description = courseEdit.Description;
+                throw new AppException("Course name '" + model.Name.Trim() + "' is already taken");
             }
-            if (course.Duration != courseEdit.Duration)
+
+            if (course.Description != model.Description.Trim())
             {
-                course.Duration = courseEdit.Duration;
+                course.Description = model.Description.Trim();
             }
-            if (course.PhotoPath != courseEdit.PhotoPath)
+            if (course.Duration != model.Duration)
             {
-                course.PhotoPath = courseEdit.PhotoPath;
+                course.Duration = model.Duration;
             }
+            if (course.PhotoPath != model.PhotoPath.Trim())
+            {
+                course.PhotoPath = model.PhotoPath.Trim();
+            }
+            context.Courses.Update(course);
             context.SaveChanges();
         }
 
