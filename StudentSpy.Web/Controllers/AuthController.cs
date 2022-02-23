@@ -49,10 +49,10 @@ namespace StudentSpy.Web.Controllers
                     var userId = userManager.GetUserIdAsync(user);
 
                     var authClaims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.NameIdentifier, userId.Result),
-                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                };
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, userId.Result),
+                        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                    };
 
                     foreach (var userRole in userRoles)
                     {

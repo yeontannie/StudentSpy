@@ -48,9 +48,17 @@ namespace StudentSpy.DataManager.Queries
             }
             else
             {
+                var allCourses = GetAllCourses();
                 foreach (var cs in userCourses)
                 {
-                    notSubs.AddRange(context.Courses.Where(i => i.Id != cs.CourseId));
+                    if (notSubs.Capacity == 0)
+                    {
+                        notSubs.AddRange(context.Courses.Where(i => i.Id != cs.CourseId));
+                    }
+                    if (notSubs.Capacity > 1)
+                    {
+                        notSubs.RemoveAll(x => x.Id == cs.CourseId);
+                    }
                 }
             }
             return notSubs;

@@ -19,8 +19,9 @@ function AdminHome(){
     useEffect(() => {
         userService.getStudents()
         .then(function (response) {
-          setTable(response.data)
-          setLoading(false);
+            console.log(response);
+            setTable(response.data)
+            setLoading(false);
         })
         .catch(function (error) {
             console.log(error)});
@@ -36,9 +37,9 @@ function AdminHome(){
         });
     }
 
-    function deleteUser(userId){
+    function deleteUser(student){
         var deleteData = {
-            userId: userId
+            user: student
         }
 
         userService.deleteUser(deleteData)
@@ -51,21 +52,25 @@ function AdminHome(){
         });
     };
 
-    const dataSource =
-    tableData.map((user) => (
-        key={user.email},
-        nameUser={user.name},
-        lastName={user.lastName},
-        age={user.age},
-        email={user.email},
-        registerDate={user.registerDate}
-    ));
+    /*const data = () => {
+        tableData.map((user) => {
+        return([
+            {
+                key: user.email,
+                nameUser: user.name,
+                lastName: user.lastName,
+                age: user.age,
+                email: user.email,
+                registerDate: user.registerDate,
+            },
+        ])}
+    )};*/
         
     const columns = [
     {
         title: 'Name',
-        dataIndex: 'nameUser',
-        key: 'nameUser',
+        dataIndex: 'name',
+        key: 'name',
         defaultSortOrder: 'descend',
         sorter: (a, b) => a.name - b.name,
     },
@@ -92,26 +97,26 @@ function AdminHome(){
     },
     {
         title: 'Register Date',
-        key: 'registerDate',
-        dataIndex: 'registerDate', 
+        dataIndex: 'registerDate',
+        key: 'registerDate', 
         defaultSortOrder: 'descend',
         sorter: (a, b) => a.registerDate - b.registerDate,         
     },
     {
         title: 'Action',
         key: 'action',
-        render: () => (
+        render: (student) => (
         <Space size="middle">
             <a><EditOutlined /></a>
-            <a><DeleteOutlined onClick={deleteUser()} /></a>
+            <a><DeleteOutlined onClick={() => deleteUser(student)} style={{ color: "red"}} /></a>
         </Space>
         ),
     },
     ];  
 
     if (isLoading) {
-        return <div className="adminHome">Loading...</div>;
-        }
+        return( <div className="adminHome">Loading...</div>
+        )}
     else{
         if(tableData == 0){
             return(
@@ -121,7 +126,9 @@ function AdminHome(){
             )
         }
         else{
-            <Table columns={columns} dataSource={tableData} />
+            return(
+                <Table columns={columns} dataSource={tableData} />
+            )
         }
     }    
 }

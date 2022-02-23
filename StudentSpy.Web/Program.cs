@@ -13,6 +13,7 @@ using StudentSpy.DataManager.Queries;
 using StudentSpy.DataManager.Commands;
 using StudentSpy.DataManager.Services;
 using StudentSpy.Web.Middlewares;
+using Microsoft.Extensions.FileProviders;
 
 var logger = NLog.LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
 logger.Debug("init main");
@@ -68,6 +69,8 @@ try
     builder.Services.AddTransient<CourseQuery>();
     builder.Services.AddTransient<CourseCommand>();
     builder.Services.AddTransient<UserCommand>();
+    builder.Services.AddTransient<UserQuery>();
+
 
     /////////////////////////////////////////////////////////
     builder.Services.AddHttpContextAccessor();
@@ -102,6 +105,13 @@ try
 
     app.UseMiddleware<ErrorHandlerMiddleware>();
     app.MapControllers();
+
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        FileProvider = new PhysicalFileProvider(
+            Path.Combine(Directory.GetCurrentDirectory(), "Photos")),
+        RequestPath = "/Photos"
+    });
 
     app.Run();
 }

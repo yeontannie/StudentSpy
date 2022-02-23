@@ -12,6 +12,6 @@ export default class userService{
     }
 
     static deleteUser(model){
-        return axios.post(URL + 'delete-user', model);
+        return axios.post(URL + 'delete-user', model);        
     }
 }

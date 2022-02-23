@@ -38,15 +38,10 @@ namespace StudentSpy.DataManager.Commands
         public void Edit(Course model, int id)
         {
             var course = context.Courses.Find(id);
-            if (course.Name != model.Name.Trim() && !context.Courses.Any(x => x.Name == model.Name.Trim()))
+            if (course.Name != model.Name.Trim())
             {
                 course.Name = model.Name.Trim();
             }
-            else
-            {
-                throw new AppException("Course name '" + model.Name.Trim() + "' is already taken");
-            }
-
             if (course.Description != model.Description.Trim())
             {
                 course.Description = model.Description.Trim();
@@ -55,9 +50,9 @@ namespace StudentSpy.DataManager.Commands
             {
                 course.Duration = model.Duration;
             }
-            if (course.PhotoPath != model.PhotoPath.Trim())
+            if (course.PhotoPath != model.PhotoPath)
             {
-                course.PhotoPath = model.PhotoPath.Trim();
+                course.PhotoPath = model.PhotoPath;
             }
             context.Courses.Update(course);
             context.SaveChanges();

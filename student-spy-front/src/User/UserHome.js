@@ -9,6 +9,7 @@ function UserHome() {
   const [coursesData, setCourses] = React.useState();
   const [dateStarted, setDate] = React.useState(new Date());
   const [isLoading, setLoading] = React.useState(true);
+  const [PhotoFilePath] = React.useState('https://localhost:44348/Photos/');
 
   const isoDate = Moment.utc(dateStarted).toISOString();
   const accessT = JSON.parse(localStorage.getItem('accessToken'));
@@ -21,11 +22,21 @@ function UserHome() {
 
     courseService.subscribeCourse(subData, config)
     .then(function (response) {
-      console.log(response)
-      window.location.reload(false);
+      console.log(response);
+      refreshCourses();
     })
     .catch(function (error) {
       console.log(error)
+    });
+  }
+
+  function refreshCourses(){
+    courseService.getUnSubCourses(config)
+    .then(function (response) {
+      setCourses(response.data)
+    })
+    .catch(function (error) {
+        console.log(error)
     });
   }
 
@@ -55,11 +66,12 @@ function UserHome() {
         <Card
         key={course.id}
         style={{ width: 300 }}
+        height={150}
         cover={
           <Image
             alt="no photo"
-            src={course.photoPath}
-            fallback=""
+            src={PhotoFilePath+course.photoPath}
+            fallback={PhotoFilePath+'default.png'}
           />
         }        
         actions={[

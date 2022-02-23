@@ -11,6 +11,7 @@ function UserCourses() {
     const accessT = JSON.parse(localStorage.getItem('accessToken'));
     const [isLoading, setLoading] = React.useState(true);
     const [coursesData, setCourses] = React.useState();
+    const [PhotoFilePath] = React.useState('https://localhost:44348/Photos/');
 
     const config = {
         headers: { Authorization: accessT }
@@ -39,11 +40,22 @@ function UserCourses() {
         courseService.unsubscribeCourse(unsubData, config)
         .then(function(response) {
             console.log(response)
-            window.location.reload(false);
+            refreshCourses()
         })
         .catch(function(error){
             console.log(error)
         });        
+    }
+
+    function refreshCourses(){
+        courseService.getSubCourses(config)
+        .then(function (response) {
+          setCourses(response.data)
+          setLoading(false);
+        })
+        .catch(function (error) {
+            console.log(error)
+        });
     }
 
     useEffect(() => {
@@ -76,11 +88,12 @@ function UserCourses() {
                 <Card
                 key={course.id}
                 style={{ width: 300 }}
+                height={150}
                 cover={
                     <Image
                     alt="no photo"
-                    src={course.photoPath}
-                    fallback=""
+                    src={PhotoFilePath+course.photoPath}
+                    fallback={PhotoFilePath+'default.png'}
                     />
                 }        
                 actions={[

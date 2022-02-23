@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using StudentSpy.Core;
+using StudentSpy.Core.Requests;
 using StudentSpy.DataManager.Commands;
 
 namespace StudentSpy.Web.Controllers
@@ -28,9 +29,9 @@ namespace StudentSpy.Web.Controllers
 
         [HttpPost]
         [Route("delete-user")]
-        public async Task<IActionResult> DeleteCourse(int userId)
+        public async Task<IActionResult> DeleteUser([FromBody] DeleteUserRequest model)
         {
-            var response = userC.Delete(userId);
+            var response = await userC.Delete(model.User);
             return Ok(response);
         }
 
@@ -38,7 +39,7 @@ namespace StudentSpy.Web.Controllers
         [Route("edit-user")]
         public async Task<IActionResult> EditCourse(User user, int userid)
         {
-            courseC.Edit(model.CourseModel, model.CourseId);
+            //courseC.Edit(model.CourseModel, model.CourseId);
             return Ok();            
         }
     }

@@ -1,15 +1,19 @@
 import React, { useEffect } from 'react';
 import courseService from '../Services/courseService';
-import { Button, Image, Card, Col, Row,  Modal, Form, Input, InputNumber, Space } from 'antd';
-import { EditOutlined, DeleteOutlined, ExclamationCircleOutlined, AppstoreAddOutlined } from '@ant-design/icons';
+import { Button, Image, Card, Col, Row,  Modal, Form, Input, InputNumber, Space, Upload } from 'antd';
+import { EditOutlined, DeleteOutlined, ExclamationCircleOutlined, AppstoreAddOutlined, UploadOutlined } from '@ant-design/icons';
+import ImgCrop from 'antd-img-crop';
 
 const { Meta } = Card;
 
 function AdminCourses() {
     const [isLoading, setLoading] = React.useState(true);
+    const [visible, setVisible] = React.useState(false);
+
     const [coursesData, setCourses] = React.useState();
     const [courseId, setCourseId] = React.useState();
-    const [visible, setVisible] = React.useState(false);
+    const [PhotoFileName, setPhotoName] = React.useState('');
+    const [PhotoFilePath] = React.useState('https://localhost:44348/Photos/');
     
     const [titleText, setTitleText] = React.useState('');
     const [okBtnText, setOkBtn] = React.useState('');
@@ -71,21 +75,22 @@ function AdminCourses() {
 
     const onSave = (values) => {
         setVisible(false);
-        var courseAddData = {
+
+        var courseEditData = {
             name: values.name,
             description: values.description,
             duration: values.duration,
-            photoPath: ""
+            photoPath: PhotoFileName
         }
 
         var model = {
-            courseModel: courseAddData,
+            courseModel: courseEditData,
             courseId: courseId
         }
 
         courseService.editCourse(model)
         .then(function (response) {
-            console.log(response)
+            console.log(response)                      
             refreshCourses();
         })
         .catch(function (error) {
@@ -99,12 +104,12 @@ function AdminCourses() {
             name: values.name,
             description: values.description,
             duration: values.duration,
-            photoPath: ""
+            photoPath: PhotoFileName
         }
 
         courseService.addCourse(courseAddData)
         .then(function (response) {
-            console.log(response)
+            console.log(response)            
             refreshCourses();
         })
         .catch(function (error) {
@@ -131,12 +136,7 @@ function AdminCourses() {
                 .validateFields()
                 .then((values) => {
                   form.resetFields();
-                  if(okBtnText == 'Create'){
-                    onCreate(values);
-                  }else{
-                    onSave(values);
-                  }
-                  
+                  uploadImg(values);                  
                 })
                 .catch((info) => {
                   console.log('Validate Failed:', info);
@@ -179,7 +179,6 @@ function AdminCourses() {
                 >
                 <Input />
                 </Form.Item>)}     
-
                 {okBtnText == 'Save' && (
                 <Form.Item 
                     name="description" 
@@ -239,10 +238,69 @@ function AdminCourses() {
                         max={40}
                         style={{ margin: '0 16px' }}
                     />
+                </Form.Item>)}
+                {okBtnText == 'Save' && (
+                    <Form.Item
+                    lable='Course Photo'
+                    name="photoPath"
+                    >
+                    <ImgCrop rotate>
+                    <Upload
+                        action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+                        onChange={onChange}
+                       // fileList={fileList}
+                        listType="picture"
+                        type='file'           
+                        >
+                        <Button icon={<UploadOutlined />}>Upload</Button>
+                    </Upload>
+                    </ImgCrop>
+                    </Form.Item>
+                )}
+                {okBtnText == 'Create' && (
+                <Form.Item
+                    lable='Course Photo'
+                    name="photoPath"
+                    >
+                    <ImgCrop rotate width={300}>
+                    <Upload
+                        action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+                        onChange={onChange}
+                        listType="picture"
+                        type='file'
+                        >
+                        <Button icon={<UploadOutlined />}>Upload</Button>
+                    </Upload>
+                    </ImgCrop>
                     </Form.Item>)}
             </Form>
           </Modal>
         );
+    };
+
+    const formData = new FormData();
+
+    const onChange = (e) => {
+        formData.append('file', e.fileList[0].originFileObj, e.fileList[0].name);
+    };
+
+    const uploadImg = (values) => {
+        setVisible(false);
+
+        courseService.saveImg(formData)
+        .then(function(response){
+            console.log(response.data);
+            setPhotoName(response.data.toString());
+
+            if(okBtnText == 'Create'){
+                onCreate(values);
+            }else{
+                onSave(values);
+            }          
+        })
+        .catch(function(error){
+            console.log(error)
+        })
     };
 
     function editCourse(id){
@@ -267,7 +325,7 @@ function AdminCourses() {
     function createCourse(){        
         setVisible(true);
         setTitleText('Create a New Course'); 
-        setOkBtn('Create');            
+        setOkBtn('Create');
     }
 
     if (isLoading) {
@@ -312,9 +370,10 @@ function AdminCourses() {
                 style={{ width: 300 }}
                 cover={
                     <Image
+                    height={150}
                     alt="no photo"
-                    src={course.photoPath}
-                    fallback=""
+                    src={PhotoFilePath+course.photoPath}
+                    fallback={PhotoFilePath+'default.png'}
                     />
                 }        
                 actions={[

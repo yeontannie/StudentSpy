@@ -15,14 +15,36 @@ namespace StudentSpy.Web.Controllers
         private readonly CourseCommand courseC;
         private readonly UserCommand userC;
         private readonly UserManager<User> userManager;
+        private readonly IWebHostEnvironment environment;
 
         public CourseController(CourseQuery csQ, CourseCommand csC,
-            UserCommand usC, UserManager<User> userM)
+            UserCommand usC, UserManager<User> userM, IWebHostEnvironment env)
         {
             courseQ = csQ;
             courseC = csC;
             userC = usC;
             userManager = userM;
+            environment = env;
+        }
+
+        [HttpPost]
+        [Route("save-file")]
+        public async Task<IActionResult> SavePhoto()
+        {
+            var httpRequest = Request.Form;
+            var postedFile = httpRequest.Files[0];
+            var splitName = postedFile.FileName.Split('.');
+            var extention = "." + splitName.Last();
+
+            var fileName = Guid.NewGuid() + extention;
+            var physicalPath = environment.ContentRootPath + "/Photos/" + fileName.ToString();
+
+            using(var stream = new FileStream(physicalPath, FileMode.Create))
+            {
+                postedFile.CopyTo(stream);
+            }
+
+            return Ok(fileName.ToString());
         }
 
         [HttpGet]
@@ -53,7 +75,7 @@ namespace StudentSpy.Web.Controllers
             return courseQ.GetUnSubscribed(userC.GetUserId());
         }
 
-        [HttpPost]
+        [HttpPut]
         [Route("edit-course")]
         public async Task<IActionResult> EditCourse([FromBody] EditCourseRequest model)
         {

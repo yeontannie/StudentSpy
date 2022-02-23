@@ -38,17 +38,18 @@ namespace StudentSpy.DataManager.Commands
             return userId;
         }
 
-        public async string Delete(string userId)
+        public async Task<string> Delete(User user)
         {
-            var subs = context.Subscriptions.Where(i => i.UserId == userId).ToList();
-            if (subs.Capacity == 0)
+            var findUser = await userManager.FindByNameAsync(user.UserName);
+            //var userId = userQ.GetUserIdd(findUser);
+            //var subs = context.Subscriptions.Where(i => i.UserId == userId.Result).ToList();
+            
+            if (findUser != null) //&& subs.Capacity == 0
             {
-                await userManager.DeleteAsync(userQ.GetUserById(userId));
-                context.SaveChanges();
+                userManager.DeleteAsync(findUser);
                 return "Deleted successfully";
-            }
-            return "Can't delete course with subscriptions";
-
+            }                       
+            return "Cannot delete student with subscriptions";
         }
     }
 }

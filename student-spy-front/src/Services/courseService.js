@@ -1,6 +1,7 @@
 import axios from "axios";
 
 const URL = 'https://localhost:44348/api/Course/';
+const PHOTOS = 'https://localhost:44348/Photos/';
 
 export default class courseService{
     static subscribeCourse(model, config){
@@ -40,6 +41,10 @@ export default class courseService{
     }
 
     static editCourse(model){
-        return axios.post(URL + 'edit-course', model);
+        return axios.put(URL + 'edit-course', model);
+    }
+
+    static saveImg(model){
+        return axios.post(URL + 'save-file', model);
     }
 }
