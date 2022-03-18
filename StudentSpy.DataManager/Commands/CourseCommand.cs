@@ -52,7 +52,10 @@ namespace StudentSpy.DataManager.Commands
             }
             if (course.PhotoPath != model.PhotoPath)
             {
-                course.PhotoPath = model.PhotoPath;
+                if (!string.IsNullOrEmpty(model.PhotoPath))
+                {
+                    course.PhotoPath = model.PhotoPath;
+                }                
             }
             context.Courses.Update(course);
             context.SaveChanges();

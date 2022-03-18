@@ -45,7 +45,10 @@ function AdminCourses() {
         courseService.deleteCourse(deleteData)
         .then(function (response) {
             console.log(response)
-            refreshCourses();
+            if(response.data.toString().includes("Can't")){
+                alert(response.data);
+                refreshCourses();
+            }
           })
           .catch(function (error) {
               console.log(error)
@@ -294,7 +297,8 @@ function AdminCourses() {
 
             if(okBtnText == 'Create'){
                 onCreate(values);
-            }else{
+            }
+            else{
                 onSave(values);
             }          
         })
@@ -377,8 +381,8 @@ function AdminCourses() {
                     />
                 }        
                 actions={[
-                    <EditOutlined key="edit" onClick={() => editCourse(course.id)} />,
-                    <DeleteOutlined key="delete" onClick={() => confirmDelete(course.id)} />,                    
+                    <EditOutlined key="edit" onClick={() => editCourse(course.id)} style={{ color: "blue"}} />,
+                    <DeleteOutlined key="delete" onClick={() => confirmDelete(course.id)} style={{ color: "red"}} />,                    
                 ]}
                 >
                 <Meta

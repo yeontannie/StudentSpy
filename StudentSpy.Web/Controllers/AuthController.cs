@@ -36,40 +36,45 @@ namespace StudentSpy.Web.Controllers
         [Route("login")]
         public async Task<IActionResult> Login([FromBody] AuthRequest model)
         {
-            AuthRequestValidator validator = new AuthRequestValidator();
-            var result = validator.Validate(model);
-            if (result.IsValid)
+            if (ModelState.IsValid)
             {
-                var username = model.Email.Split('@');
-                var user = await userManager.FindByNameAsync(username.First());
-                if (user != null && await userManager.CheckPasswordAsync(user, model.Password))
-                //&& user.EmailConfirmed == true
+                AuthRequestValidator validator = new AuthRequestValidator();
+                var result = validator.Validate(model);
+                if (result.IsValid)
                 {
-                    var userRoles = await userManager.GetRolesAsync(user);
-                    var userId = userManager.GetUserIdAsync(user);
-
-                    var authClaims = new List<Claim>
+                    var username = model.Email.Split('@');
+                    var user = await userManager.FindByNameAsync(username.First());
+                    if (user != null && await userManager.CheckPasswordAsync(user, model.Password))
+                    //&& user.EmailConfirmed == true
                     {
-                        new Claim(ClaimTypes.NameIdentifier, userId.Result),
-                        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                    };
+                        var userRoles = await userManager.GetRolesAsync(user);
+                        var userId = userManager.GetUserIdAsync(user);
 
-                    foreach (var userRole in userRoles)
-                    {
-                        authClaims.Add(new Claim(ClaimTypes.Role, userRole));
+                        var authClaims = new List<Claim>
+                        {
+                            new Claim(ClaimTypes.NameIdentifier, userId.Result),
+                            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                        };
+
+                        foreach (var userRole in userRoles)
+                        {
+                            authClaims.Add(new Claim(ClaimTypes.Role, userRole));
+                        }
+
+                        var token = GenerateToken(authClaims);
+                        return Ok(new
+                        {
+                            token = new JwtSecurityTokenHandler().WriteToken(token),
+                            expiration = token.ValidTo,
+                            role = userRoles
+                        });
                     }
-
-                    var token = GenerateToken(authClaims);
-                    return Ok(new
-                    {
-                        token = new JwtSecurityTokenHandler().WriteToken(token),
-                        expiration = token.ValidTo,
-                        role = userRoles
-                    });
                 }
-            }            
-            logger.LogInformation("Unauthorized. Refuse to login.");
-            return Unauthorized();
+                logger.LogInformation("Unauthorized. Refuse to login.");
+                return Unauthorized();
+            }
+            logger.LogInformation("Bad Request. Refuse to login.");
+            return BadRequest();            
         }
 
         [AllowAnonymous]
@@ -77,58 +82,58 @@ namespace StudentSpy.Web.Controllers
         [Route("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest model)
         {
-            RegisterRequestValidator validator = new RegisterRequestValidator();
-            var validResult = validator.Validate(model);
-            if (validResult.IsValid)
+            if (ModelState.IsValid)
             {
-                var username = model.Email.Split('@');
-                var userExists = await userManager.FindByNameAsync(username.First());
-                if (userExists != null)
+                RegisterRequestValidator validator = new RegisterRequestValidator();
+                var validResult = validator.Validate(model);
+                if (validResult.IsValid)
                 {
-                    logger.LogError(StatusCodes.Status409Conflict.ToString());
-                    return StatusCode(StatusCodes.Status409Conflict);
+                    var username = model.Email.Split('@');
+                    var userExists = await userManager.FindByNameAsync(username.First());
+                    if (userExists != null)
+                    {
+                        logger.LogError(StatusCodes.Status409Conflict.ToString());
+                        return StatusCode(StatusCodes.Status409Conflict);
+                    }
+
+                    User user = new()
+                    {
+                        Name = model.Name,
+                        LastName = model.LastName,
+                        Email = model.Email,
+                        UserName = username.First(),
+                        Age = Convert.ToInt32(model.Age),
+                        RegisterDate = DateTime.Now,
+                        SecurityStamp = Guid.NewGuid().ToString()
+                    };
+
+                    var result = await userManager.CreateAsync(user, model.Password);
+                    if (!result.Succeeded)
+                    {
+                        logger.LogError(StatusCodes.Status500InternalServerError.ToString());
+                        return StatusCode(StatusCodes.Status500InternalServerError);
+                    }
+
+                    if (await roleManager.RoleExistsAsync(UserRoles.User))
+                    {
+                        await userManager.AddToRoleAsync(user, UserRoles.User);
+                    }
+
+                    var code = await userManager.GenerateEmailConfirmationTokenAsync(user);
+
+                    var callbackUrl = Url.Action(
+                        "ConfirmEmail",
+                        "Auth",
+                        new { userName = user.UserName, code = code },
+                        HttpContext.Request.Scheme);
+
+                    EmailService emailService = new EmailService();
+                    emailService.SendEmail(model.Email, "Confirm your account",
+                        $"Your account has been created. To login you need to confirm " +
+                        $"your accout first. To do that: <a href='{callbackUrl}'>Click here!</a>");
+
+                    return Ok();
                 }
-
-                User user = new()
-                {
-                    Name = model.Name,
-                    LastName = model.LastName,
-                    Email = model.Email,
-                    UserName = username.First(),
-                    Age = Convert.ToInt32(model.Age),
-                    PhotoPath = model.PhotoPath,
-                    RegisterDate = DateTime.Now,
-                    SecurityStamp = Guid.NewGuid().ToString()
-                };
-
-                var result = await userManager.CreateAsync(user, model.Password);
-                if (!result.Succeeded)
-                {
-                    logger.LogError(StatusCodes.Status500InternalServerError.ToString());
-                    return StatusCode(StatusCodes.Status500InternalServerError);
-                }
-
-                if (await roleManager.RoleExistsAsync(UserRoles.User))
-                {
-                    await userManager.AddToRoleAsync(user, UserRoles.User);
-                }
-                
-                var code = await userManager.GenerateEmailConfirmationTokenAsync(user);
-
-                var callbackUrl = Url.Action(
-                    "ConfirmEmail",
-                    "Auth",
-                    new { userName = user.UserName, code = code },
-                    HttpContext.Request.Scheme);
-
-                EmailService emailService = new EmailService();
-                emailService.SendEmail(model.Email, "Confirm your account",
-                    $"Your account has been created. To login you need to confirm " +
-                    $"your accout first. To do that: <a href='{callbackUrl}'>Click here!</a>");
-
-                
-
-                return Ok();
             }
             return BadRequest();
         }
@@ -179,7 +184,6 @@ namespace StudentSpy.Web.Controllers
                 Email = model.Email,
                 UserName = username.First(),
                 Age = Convert.ToInt32(model.Age),
-                PhotoPath = model.PhotoPath,
                 RegisterDate = DateTime.Now,
                 SecurityStamp = Guid.NewGuid().ToString()
             };

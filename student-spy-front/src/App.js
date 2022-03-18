@@ -35,7 +35,7 @@ function App() {
             </Routes>           
           </div>
          </Content> 
-          <Footer style={{ textAlign: 'center' }}>StudentSpy ©2022 Created by CyberOstroh</Footer> 
+          <Footer style={{ textAlign: 'center' }}>StudentSpy ©2022 Created by Room50 Inc.</Footer> 
         </Layout>   
       </BrowserRouter>       
     </div>

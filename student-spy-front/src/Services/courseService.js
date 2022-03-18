@@ -41,7 +41,7 @@ export default class courseService{
     }
 
     static editCourse(model){
-        return axios.put(URL + 'edit-course', model);
+        return axios.post(URL + 'edit-course', model);
     }
 
     static saveImg(model){

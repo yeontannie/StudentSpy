@@ -20,9 +20,9 @@ namespace StudentSpy.DataManager.Queries
             userManager = userM;
         }
 
-        public Task<string> GetUserIdd(User user)
+        public async Task<IList<User>> GetStudents()
         {
-            return userManager.GetUserIdAsync(user);
+            return await userManager.GetUsersInRoleAsync("User");
         }
     }
 }

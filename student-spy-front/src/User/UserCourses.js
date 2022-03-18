@@ -87,10 +87,10 @@ function UserCourses() {
                 <Col span={8}>
                 <Card
                 key={course.id}
-                style={{ width: 300 }}
-                height={150}
+                style={{ width: 300 }}                
                 cover={
                     <Image
+                    height={150}
                     alt="no photo"
                     src={PhotoFilePath+course.photoPath}
                     fallback={PhotoFilePath+'default.png'}

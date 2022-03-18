@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const URL = 'https://localhost:44348/api/Admin/';
+const URL = 'https://localhost:44348/api/User/';
 
 export default class userService{
     static getStudents(){
@@ -13,5 +13,9 @@ export default class userService{
 
     static deleteUser(model){
         return axios.post(URL + 'delete-user', model);        
+    }
+
+    static editStudent(model){
+        return axios.post(URL + 'edit-user', model);
     }
 }

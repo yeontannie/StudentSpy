@@ -30,21 +30,25 @@ namespace StudentSpy.Web.Controllers
         [HttpPost]
         [Route("save-file")]
         public async Task<IActionResult> SavePhoto()
-        {
+        {            
             var httpRequest = Request.Form;
-            var postedFile = httpRequest.Files[0];
-            var splitName = postedFile.FileName.Split('.');
-            var extention = "." + splitName.Last();
 
-            var fileName = Guid.NewGuid() + extention;
-            var physicalPath = environment.ContentRootPath + "/Photos/" + fileName.ToString();
-
-            using(var stream = new FileStream(physicalPath, FileMode.Create))
+            if (httpRequest.Files.Count != 0)
             {
-                postedFile.CopyTo(stream);
-            }
+                var postedFile = httpRequest.Files[0];
+                var splitName = postedFile.FileName.Split('.');
+                var extention = "." + splitName.Last();
 
-            return Ok(fileName.ToString());
+                var fileName = Guid.NewGuid() + extention;
+                var physicalPath = environment.ContentRootPath + "/Photos/" + fileName.ToString();
+
+                using (var stream = new FileStream(physicalPath, FileMode.Create))
+                {
+                    postedFile.CopyTo(stream);
+                }
+                return Ok(fileName.ToString());
+            }
+            return Ok();
         }
 
         [HttpGet]
@@ -75,7 +79,7 @@ namespace StudentSpy.Web.Controllers
             return courseQ.GetUnSubscribed(userC.GetUserId());
         }
 
-        [HttpPut]
+        [HttpPost]
         [Route("edit-course")]
         public async Task<IActionResult> EditCourse([FromBody] EditCourseRequest model)
         {
@@ -111,7 +115,7 @@ namespace StudentSpy.Web.Controllers
         //[Authorize]
         [Route("subscribe")]
         public async Task<IActionResult> Subscribe([FromBody] SubscriptionRequest model)
-        {
+        {            
             if (ModelState.IsValid)
             {
                 var course = courseQ.GetCourseById(model.CourseId);
