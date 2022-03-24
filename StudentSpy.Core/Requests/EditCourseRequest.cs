@@ -4,5 +4,5 @@
     {
         public Course CourseModel { get; set; }
         public int CourseId { get; set; }
-    }
+    }   
 }

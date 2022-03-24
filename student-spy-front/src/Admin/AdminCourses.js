@@ -12,7 +12,6 @@ function AdminCourses() {
 
     const [coursesData, setCourses] = React.useState();
     const [courseId, setCourseId] = React.useState();
-    const [PhotoFileName, setPhotoName] = React.useState('');
     const [PhotoFilePath] = React.useState('https://localhost:44348/Photos/');
     
     const [titleText, setTitleText] = React.useState('');
@@ -46,9 +45,9 @@ function AdminCourses() {
         .then(function (response) {
             console.log(response)
             if(response.data.toString().includes("Can't")){
-                alert(response.data);
-                refreshCourses();
+                alert(response.data);                
             }
+            refreshCourses();
           })
           .catch(function (error) {
               console.log(error)
@@ -76,14 +75,14 @@ function AdminCourses() {
         });
     }
 
-    const onSave = (values) => {
+    const onSave = (values, photo) => {
         setVisible(false);
 
         var courseEditData = {
             name: values.name,
             description: values.description,
             duration: values.duration,
-            photoPath: PhotoFileName
+            photoPath: photo
         }
 
         var model = {
@@ -101,14 +100,15 @@ function AdminCourses() {
         });
     }
     
-    const onCreate = (values) => {
+    const onCreate = (values, photo) => {
         setVisible(false);
         var courseAddData = {
             name: values.name,
             description: values.description,
             duration: values.duration,
-            photoPath: PhotoFileName
+            photoPath: photo
         }
+        console.log(photo);
 
         courseService.addCourse(courseAddData)
         .then(function (response) {
@@ -125,7 +125,7 @@ function AdminCourses() {
         setVisible(false);
     };
 
-    const CourseCreateForm = ({ visible, onCreate, onCancel }) => {
+    const CourseCreateForm = ({ visible, onCancel }) => {
         const [form] = Form.useForm();
         return (
           <Modal
@@ -292,14 +292,15 @@ function AdminCourses() {
 
         courseService.saveImg(formData)
         .then(function(response){
-            console.log(response.data);
-            setPhotoName(response.data.toString());
+            console.log(response);
 
-            if(okBtnText == 'Create'){
-                onCreate(values);
+            if(okBtnText == 'Create')
+            {
+                onCreate(values, response.data);
             }
-            else{
-                onSave(values);
+            else if(okBtnText == 'Save')
+            {
+                onSave(values, response.data);
             }          
         })
         .catch(function(error){

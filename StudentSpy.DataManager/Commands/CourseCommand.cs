@@ -1,6 +1,6 @@
-﻿using StudentSpy.Core;
+﻿using Microsoft.AspNetCore.Hosting;
+using StudentSpy.Core;
 using StudentSpy.DataManager.Data;
-using StudentSpy.DataManager.Helpers;
 using StudentSpy.DataManager.Queries;
 
 namespace StudentSpy.DataManager.Commands
@@ -9,11 +9,14 @@ namespace StudentSpy.DataManager.Commands
     {
         private readonly AppDbContext context;
         private readonly CourseQuery courseQue;
+        private readonly IWebHostEnvironment environment;
 
-        public CourseCommand(AppDbContext ctx, CourseQuery courseQ)
+        public CourseCommand(AppDbContext ctx, CourseQuery courseQ,
+            IWebHostEnvironment env)
         {
             context = ctx;
             courseQue = courseQ;
+            environment = env;
         }
 
         public void Add(Course course)
@@ -25,9 +28,15 @@ namespace StudentSpy.DataManager.Commands
         public string Delete(int courseId)
         {
             var subs = context.Subscriptions.Where(i => i.CourseId == courseId).ToList();
-            if(subs.Capacity == 0)
+            if (subs.Capacity == 0)
             {
-                context.Courses.Remove(courseQue.GetCourseById(courseId));
+                var course = courseQue.GetCourseById(courseId);
+                if (File.Exists(environment.ContentRootPath + "/Photos/" + course.PhotoPath))
+                {
+                    File.Delete(environment.ContentRootPath + "/Photos/" + course.PhotoPath);
+                }
+
+                context.Courses.Remove(course);
                 context.SaveChanges();
                 return "Deleted successfully";
             }
@@ -55,24 +64,25 @@ namespace StudentSpy.DataManager.Commands
                 if (!string.IsNullOrEmpty(model.PhotoPath))
                 {
                     course.PhotoPath = model.PhotoPath;
-                }                
+                }
+
+                context.Courses.Update(course);
+                context.SaveChanges();
             }
-            context.Courses.Update(course);
-            context.SaveChanges();
         }
 
-        public void Subscribe(Subscription sub)
-        {
-            context.Subscriptions.Add(sub);
-            context.SaveChanges();
-        }
+            public void Subscribe(Subscription sub)
+            {
+                context.Subscriptions.Add(sub);
+                context.SaveChanges();
+            }
 
-        public void Unsubscribe(string userId, int courseId)
-        {
-            Subscription sub = context.Subscriptions.First(x => x.UserId == userId &&
-            x.CourseId == courseId);
-            context.Subscriptions.Remove(sub);
-            context.SaveChanges();
-        }
+            public void Unsubscribe(string userId, int courseId)
+            {
+                Subscription sub = context.Subscriptions.First(x => x.UserId == userId &&
+                x.CourseId == courseId);
+                context.Subscriptions.Remove(sub);
+                context.SaveChanges();
+            }
     }
-}
+} 

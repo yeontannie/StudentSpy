@@ -15,19 +15,24 @@ function UserHome() {
   const accessT = JSON.parse(localStorage.getItem('accessToken'));
 
   function startCourse(courseId) {
-    var subData = {
-      courseId: courseId,
-      startDate: isoDate
-    };
+    if(dateStarted == ''){
+      alert('Choose the date first!')
+    }
+    else{
+      var subData = {
+        courseId: courseId,
+        startDate: isoDate
+      };
 
-    courseService.subscribeCourse(subData, config)
-    .then(function (response) {
-      console.log(response);
-      refreshCourses();
-    })
-    .catch(function (error) {
-      console.log(error)
-    });
+      courseService.subscribeCourse(subData, config)
+      .then(function (response) {
+        console.log(response);
+        refreshCourses();
+      })
+      .catch(function (error) {
+        console.log(error)
+      });
+    }
   }
 
   function refreshCourses(){
@@ -66,9 +71,9 @@ function UserHome() {
         <Card
         key={course.id}
         style={{ width: 300 }}
-        height={150}
         cover={
           <Image
+            height={150}
             alt="no photo"
             src={PhotoFilePath+course.photoPath}
             fallback={PhotoFilePath+'default.png'}

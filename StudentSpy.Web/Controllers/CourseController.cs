@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using StudentSpy.Core;
 using StudentSpy.Core.Requests;
 using StudentSpy.DataManager.Commands;
@@ -14,16 +13,14 @@ namespace StudentSpy.Web.Controllers
         private readonly CourseQuery courseQ;
         private readonly CourseCommand courseC;
         private readonly UserCommand userC;
-        private readonly UserManager<User> userManager;
         private readonly IWebHostEnvironment environment;
 
         public CourseController(CourseQuery csQ, CourseCommand csC,
-            UserCommand usC, UserManager<User> userM, IWebHostEnvironment env)
+            UserCommand usC, IWebHostEnvironment env)
         {
             courseQ = csQ;
             courseC = csC;
             userC = usC;
-            userManager = userM;
             environment = env;
         }
 

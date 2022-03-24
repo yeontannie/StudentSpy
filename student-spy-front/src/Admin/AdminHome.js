@@ -72,9 +72,9 @@ function AdminHome(){
         .then(function (response) {
             console.log(response)
             if(response.data.includes("Can't")){
-                alert(response.data);
-                refreshUsers();
-            }            
+                alert(response.data);                
+            }
+            refreshUsers();          
           })
           .catch(function (error) {
               console.log(error)

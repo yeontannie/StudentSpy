@@ -28,7 +28,8 @@ try
 
     //Db
     builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(
-    builder.Configuration.GetConnectionString("DefaultConnection")
+    builder.Configuration.GetConnectionString("DefaultConnection"),
+    x => x.MigrationsAssembly("StudentSpy.Web")
     ));
     //For Identity
     builder.Services.AddIdentity<User, Microsoft.AspNetCore.Identity.IdentityRole>()
@@ -65,7 +66,7 @@ try
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
 
-    builder.Services.AddTransient<IEmailService, EmailService>();
+    builder.Services.AddTransient<EmailService>();
     builder.Services.AddTransient<CourseQuery>();
     builder.Services.AddTransient<CourseCommand>();
     builder.Services.AddTransient<UserCommand>();

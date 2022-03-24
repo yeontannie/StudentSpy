@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using StudentSpy.Core;
 using StudentSpy.DataManager.Data;
-using StudentSpy.DataManager.Helpers;
 using StudentSpy.DataManager.Queries;
 
 namespace StudentSpy.DataManager.Commands
