@@ -14,7 +14,7 @@ using System.Net.Mail;
 namespace StudentSpy.Repositories
 {
     public class EmailService : IEmailService
-    {//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
+    {
         public void SendEmailAsync(string email, string subject, string message)
         {
             var emailMessage = new MailMessage();
@@ -42,22 +42,7 @@ namespace StudentSpy.Repositories
                 {
                     
                 }
-                
-                //client.ConnectAsync("smtp.gmail.com", 587, true);
-                //client.AuthenticateAsync("studentspy35@gmail.com", "Password!!11");
-                //client.SendAsync(emailMessage);
-
-                //client.DisconnectAsync(true);
             }
-
-            //Environment.SetEnvironmentVariable("Api_Key", "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");
-            //var apiKey = Environment.GetEnvironmentVariable("Api_Key");
-            //var client = new SendGridClient(apiKey);
-            //var from = new EmailAddress("tanastasuk35@gmail.com", "Site Administration");
-            //var to = new EmailAddress(email, "");
-            //var msg = MailHelper.CreateSingleEmail(
-            //    from, to, subject, "Dear User!", message);
-            //client.SendEmailAsync(msg).Wait();
         }
     }
 }
