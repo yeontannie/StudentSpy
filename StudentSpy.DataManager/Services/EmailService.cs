@@ -5,7 +5,7 @@ using MimeKit.Text;
 namespace StudentSpy.DataManager.Services
 {
     public class EmailService
-    {//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
+    {
         public void SendEmail(string email, string subject, string message)
         {
             var emailMessage = new MimeMessage();
